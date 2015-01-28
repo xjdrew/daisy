@@ -1,0 +1,8 @@
+package proto.base;
+
+message Pack {
+    optional	int32	session   = 1;
+    optional    int32   timestamp = 2;
+    optional	int32	type      = 3;
+    optional	bytes	data      = 4;
+}

@@ -121,7 +121,6 @@ func normalizeModule(module *Module) {
 		} else {
 			service.Output = addPrefix(service.Output[1:len(service.Output)-1], module.Name)
 		}
-		fmt.Printf("-------------------:%+v\n", module.Services[i])
 	}
 }
 

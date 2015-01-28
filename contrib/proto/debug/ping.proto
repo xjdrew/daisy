@@ -1,0 +1,10 @@
+package proto.debug;
+
+message Ping {
+    optional string ping = 1;
+    message Response {
+        optional string pong = 1;
+    }
+}
+
+
