@@ -9,7 +9,7 @@ protobuf:
 	@project/pb-gen.sh
 
 install:
-	go install .
+	go install ./daisy
 
 test:
 	go test ./protolist
