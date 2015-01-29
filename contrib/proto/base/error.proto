@@ -1,0 +1,6 @@
+package proto.base;
+
+message Error {
+    optional string error = 1;
+}
+

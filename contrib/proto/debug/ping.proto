@@ -1,10 +1,14 @@
 package proto.debug;
 
+import "base/error.proto";
+import "base/pack.proto";
+
 message Ping {
     optional string ping = 1;
     message Response {
         optional string pong = 1;
+        optional base.Error  error = 2;
+        optional base.Pack   pack = 3;
     }
 }
-
 
