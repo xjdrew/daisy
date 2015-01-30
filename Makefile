@@ -19,7 +19,7 @@ install:
 	go install ./daisy
 
 test:
-	go test ./protolist
+	go test ./...
 
 clean:
 	go clean -i ./...
