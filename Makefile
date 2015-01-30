@@ -1,12 +1,19 @@
 .PHONY: all install test clean
 
-all: protobuf install
+all: build protolist protobuf install
+
+build:
+	-mkdir -p ./gen/proto
+	-mkdir -p ./gen/interfaces
 
 %.pb.go: %.proto
 	protoc --go_out=$(PB_DIR) $<
 
+protolist:
+	cat ./contrib/proto/service.protolist | go run ./pb/generator.go > ./gen/interfaces/protolist.go
+
 protobuf:
-	@project/pb-gen.sh
+	project/pb-gen.sh
 
 install:
 	go install ./daisy

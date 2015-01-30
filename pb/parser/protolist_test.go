@@ -1,4 +1,4 @@
-package protolist
+package parser
 
 import (
 	"fmt"
@@ -69,17 +69,21 @@ var case1 = Case{
 		"service4:input1[output1]=4",
 		"service5:[ output1 ]=5",
 		"service6:[]=6",
+		"service7:.proto.test2.Service7 = 7",
+		"service8:.proto.test2.Service7 [.proto.test2.Service8]= 8",
 		"}",
 	},
 	module: Module{
 		Name: "test",
 		Services: []Service{
-			{1, "service1", "proto.test.Service1", "proto.test.Service1.Response"},
-			{2, "service2", "proto.test.Input1", "proto.test.Input1.Response"},
-			{3, "service3", "proto.test.Input1", ""},
-			{4, "service4", "proto.test.Input1", "proto.test.Output1"},
-			{5, "service5", "proto.test.Service5", "proto.test.Output1"},
-			{6, "service6", "proto.test.Service6", ""},
+			{1, "service1", "proto_test.Service1", "proto_test.Service1_Response"},
+			{2, "service2", "proto_test.Input1", "proto_test.Input1_Response"},
+			{3, "service3", "proto_test.Input1", ""},
+			{4, "service4", "proto_test.Input1", "proto_test.Output1"},
+			{5, "service5", "proto_test.Service5", "proto_test.Output1"},
+			{6, "service6", "proto_test.Service6", ""},
+			{7, "service7", "proto_test2.Service7", "proto_test2.Service7_Response"},
+			{8, "service8", "proto_test2.Service7", "proto_test2.Service8"},
 		},
 	},
 }
@@ -98,12 +102,12 @@ var case2 = Case{
 	module: Module{
 		Name: "test1",
 		Services: []Service{
-			{11, "service11", "proto.test1.Service11", "proto.test1.Service11.Response"},
-			{12, "service12", "proto.test1.Input1", "proto.test1.Input1.Response"},
-			{13, "service13", "proto.test1.Input1", ""},
-			{14, "service14", "proto.test1.Input1", "proto.test1.Output1"},
-			{15, "service15", "proto.test1.Service15", "proto.test1.Output1"},
-			{16, "service16", "proto.test1.Service16", ""},
+			{11, "service11", "proto_test1.Service11", "proto_test1.Service11_Response"},
+			{12, "service12", "proto_test1.Input1", "proto_test1.Input1_Response"},
+			{13, "service13", "proto_test1.Input1", ""},
+			{14, "service14", "proto_test1.Input1", "proto_test1.Output1"},
+			{15, "service15", "proto_test1.Service15", "proto_test1.Output1"},
+			{16, "service16", "proto_test1.Service16", ""},
 		},
 	},
 }

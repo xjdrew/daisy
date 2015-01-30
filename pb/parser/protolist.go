@@ -1,8 +1,8 @@
-package protolist
+package parser
 
 import (
 	"fmt"
-	"os"
+	"io/ioutil"
 	"regexp"
 	"strconv"
 	"strings"
@@ -21,29 +21,14 @@ type Module struct {
 	Services []Service
 }
 
-var ProtoPrefixEscape = "."
-var ProtoPrefix = "proto"
-var ProtoResponse = ".Response"
+var ProtoPrefixEscape = ".proto."
+var ProtoPrefix = "proto_"
+var ProtoResponse = "_Response"
 
 // exported interfaces
 func ParseFile(path string) ([]Module, error) {
-	var file *os.File
-	var err error
-	if file, err = os.Open(path); err != nil {
-		return nil, err
-	}
-
-	var sz int64
-	if sz, err = file.Seek(0, 2); err != nil {
-		return nil, err
-	}
-
-	if _, err = file.Seek(0, 0); err != nil {
-		return nil, err
-	}
-
-	data := make([]byte, sz)
-	if _, err = file.Read(data); err != nil {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
 		return nil, err
 	}
 	return ParseData(string(data))
@@ -87,6 +72,7 @@ const (
 	NEWLINE      = "\r\n"
 	MODULE_START = "{"
 	MODULE_END   = "}"
+	EMPTY_OUTPUT = "[]"
 )
 
 // camel case
@@ -99,10 +85,10 @@ func camelCase(src string) string {
 }
 
 func addPrefix(str, prefix string) string {
-	if str[:1] == ProtoPrefixEscape {
-		return str[1:]
+	if strings.HasPrefix(str, ProtoPrefixEscape) {
+		return strings.Replace(str, ProtoPrefixEscape, ProtoPrefix, 1)
 	} else {
-		return strings.Join([]string{ProtoPrefix, prefix, camelCase(str)}, ".")
+		return ProtoPrefix + prefix + "." + camelCase(str)
 	}
 }
 
@@ -116,7 +102,7 @@ func normalizeModule(module *Module) {
 		}
 		if service.Output == "" {
 			service.Output = service.Input + ProtoResponse
-		} else if service.Output == "[]" {
+		} else if service.Output == EMPTY_OUTPUT {
 			service.Output = ""
 		} else {
 			service.Output = addPrefix(service.Output[1:len(service.Output)-1], module.Name)
@@ -210,31 +196,41 @@ func splitModules(lines []string) []string {
 	return splitLines(a, MODULE_END)
 }
 
-func isWordElem(c rune) bool {
-	if c >= 'a' && c <= 'z' {
+func isSpace(c rune) bool {
+	return c == ' ' || c == '\t'
+}
+
+var nameRegex = regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9]*$")
+
+func checkName(data string) bool {
+	return nameRegex.MatchString(data)
+}
+
+var inputRegex = regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9]*\\.[A-Z][a-zA-Z0-9]*$")
+
+func checkInput(str string) bool {
+	if str == "" {
 		return true
 	}
-	if c >= 'A' && c <= 'Z' {
+
+	// Name
+	if checkName(str) {
 		return true
 	}
-	if c >= '0' && c <= '9' {
+
+	// .proto.Module.Name
+	if inputRegex.MatchString(strings.Replace(str, ProtoPrefixEscape, "", 1)) {
 		return true
 	}
 	return false
 }
 
-func isSpace(c rune) bool {
-	return c == ' ' || c == '\t'
-}
-
-func checkWord(data string) bool {
-	data = strings.TrimSpace(data)
-	for _, c := range data {
-		if !isWordElem(c) {
-			return false
-		}
+func checkOutput(str string) bool {
+	if str == "" {
+		return true
 	}
-	return true
+
+	return checkInput(str[1 : len(str)-1])
 }
 
 // name = id
@@ -267,6 +263,15 @@ func parseService(data string) (s Service, err error) {
 		}
 		return r
 	}, sections[3])
+
+	if !checkInput(s.Input) {
+		err = fmt.Errorf("invalid input format:%s", s.Input)
+		return
+	}
+	if !checkOutput(s.Output) {
+		err = fmt.Errorf("invalid output format:%s", s.Output)
+		return
+	}
 	return
 }
 
@@ -298,7 +303,7 @@ func (d *decodeState) nextModule() (m *Module, err error) {
 	mstart := d.scanLine(MODULE_START)
 	mend := d.scanLine(MODULE_END)
 	name := d.lines[d.off]
-	if mstart >= mend || mstart != d.off+1 || !checkWord(name) {
+	if mstart >= mend || mstart != d.off+1 || !checkName(name) {
 		err = fmt.Errorf("illegal module struct:%s", name)
 		return
 	}

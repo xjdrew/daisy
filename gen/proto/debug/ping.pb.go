@@ -15,8 +15,6 @@ package proto_debug
 
 import proto "github.com/golang/protobuf/proto"
 import math "math"
-import proto_base "github.com/xjdrew/daisy/pb/base"
-import proto_base1 "github.com/xjdrew/daisy/pb/base"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -39,10 +37,8 @@ func (m *Ping) GetPing() string {
 }
 
 type Ping_Response struct {
-	Pong             *string           `protobuf:"bytes,1,opt,name=pong" json:"pong,omitempty"`
-	Error            *proto_base.Error `protobuf:"bytes,2,opt,name=error" json:"error,omitempty"`
-	Pack             *proto_base1.Pack `protobuf:"bytes,3,opt,name=pack" json:"pack,omitempty"`
-	XXX_unrecognized []byte            `json:"-"`
+	Pong             *string `protobuf:"bytes,1,opt,name=pong" json:"pong,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
 }
 
 func (m *Ping_Response) Reset()         { *m = Ping_Response{} }
@@ -54,20 +50,6 @@ func (m *Ping_Response) GetPong() string {
 		return *m.Pong
 	}
 	return ""
-}
-
-func (m *Ping_Response) GetError() *proto_base.Error {
-	if m != nil {
-		return m.Error
-	}
-	return nil
-}
-
-func (m *Ping_Response) GetPack() *proto_base1.Pack {
-	if m != nil {
-		return m.Pack
-	}
-	return nil
 }
 
 func init() {

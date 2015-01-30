@@ -9,7 +9,7 @@
 echo "------------- compile protobuffer file -------------"
 set -xe
 PB_IN_DIR=$PWD/contrib/proto
-PB_OUT_DIR=$PWD/pb
+PB_OUT_DIR=$PWD/gen/proto
 
 # convert *.proto to *.pb.go
 PROTO_FILES=
