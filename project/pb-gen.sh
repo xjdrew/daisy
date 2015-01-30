@@ -8,8 +8,11 @@
 
 echo "------------- compile protobuffer file -------------"
 set -xe
+OUT_DIR=gen/proto
+
 PB_IN_DIR=$PWD/contrib/proto
-PB_OUT_DIR=$PWD/gen/proto
+PB_OUT_DIR=$PWD/$OUT_DIR
+PB_IMPORT_PREFIX="github.com/xjdrew/daisy/"$OUT_DIR
 
 # convert *.proto to *.pb.go
 PROTO_FILES=
@@ -24,8 +27,7 @@ for dir in $subdirs;do
 done
 cd -
 
-# convert import XXX "path/to/file.pb" to import XXX "github.com/xjdrew/daisy/pb/path"
-PREFIX="github.com/xjdrew/daisy/pb/"
+# convert import XXX "path/to/file.pb" to import XXX $PB_IMPORT_PREFIX
 function normalize_import() {
     if [ -z "$1" ];then
         return
@@ -35,7 +37,7 @@ function normalize_import() {
     local tmpfile=${file}.old
     for i in ${PROTO_FILES};do
         local src=$(echo $i | sed 's/proto$/pb/')
-        local dst=${PREFIX}$(echo $src | sed 's/\/.*//')
+        local dst=${PB_IMPORT_PREFIX}$(echo $src | sed 's/\/.*//')
         mv $file $tmpfile
         sed "/^import/s;$src;$dst;" $tmpfile > $file
         rm $tmpfile
