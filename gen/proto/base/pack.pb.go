@@ -10,8 +10,7 @@ It is generated from these files:
 
 It has these top-level messages:
 	Error
-	Request
-	Response
+	Pack
 */
 package proto_base
 
@@ -46,64 +45,40 @@ func (m *Error) GetError() string {
 	return ""
 }
 
-type Request struct {
+type Pack struct {
 	Session          *int32 `protobuf:"varint,1,opt,name=session" json:"session,omitempty"`
 	Type             *int32 `protobuf:"varint,2,opt,name=type" json:"type,omitempty"`
-	Data             []byte `protobuf:"bytes,3,opt,name=data" json:"data,omitempty"`
+	Error            *Error `protobuf:"bytes,3,opt,name=error" json:"error,omitempty"`
+	Data             []byte `protobuf:"bytes,4,opt,name=data" json:"data,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Request) Reset()         { *m = Request{} }
-func (m *Request) String() string { return proto.CompactTextString(m) }
-func (*Request) ProtoMessage()    {}
+func (m *Pack) Reset()         { *m = Pack{} }
+func (m *Pack) String() string { return proto.CompactTextString(m) }
+func (*Pack) ProtoMessage()    {}
 
-func (m *Request) GetSession() int32 {
+func (m *Pack) GetSession() int32 {
 	if m != nil && m.Session != nil {
 		return *m.Session
 	}
 	return 0
 }
 
-func (m *Request) GetType() int32 {
+func (m *Pack) GetType() int32 {
 	if m != nil && m.Type != nil {
 		return *m.Type
 	}
 	return 0
 }
 
-func (m *Request) GetData() []byte {
-	if m != nil {
-		return m.Data
-	}
-	return nil
-}
-
-type Response struct {
-	Session          *int32 `protobuf:"varint,1,opt,name=session" json:"session,omitempty"`
-	Error            *Error `protobuf:"bytes,2,opt,name=error" json:"error,omitempty"`
-	Data             []byte `protobuf:"bytes,3,opt,name=data" json:"data,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *Response) Reset()         { *m = Response{} }
-func (m *Response) String() string { return proto.CompactTextString(m) }
-func (*Response) ProtoMessage()    {}
-
-func (m *Response) GetSession() int32 {
-	if m != nil && m.Session != nil {
-		return *m.Session
-	}
-	return 0
-}
-
-func (m *Response) GetError() *Error {
+func (m *Pack) GetError() *Error {
 	if m != nil {
 		return m.Error
 	}
 	return nil
 }
 
-func (m *Response) GetData() []byte {
+func (m *Pack) GetData() []byte {
 	if m != nil {
 		return m.Data
 	}

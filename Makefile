@@ -4,13 +4,13 @@ all: build protolist protobuf install
 
 build:
 	-mkdir -p ./gen/proto
-	-mkdir -p ./gen/interfaces
+	-mkdir -p ./gen/protolist
 
 %.pb.go: %.proto
 	protoc --go_out=$(PB_DIR) $<
 
 protolist:
-	cat ./contrib/proto/service.protolist | go run ./pb/generator.go > ./gen/interfaces/protolist.go
+	cat ./contrib/proto/service.protolist | go run ./pb/generator.go > ./gen/protolist/protolist.go
 
 protobuf:
 	project/pb-gen.sh

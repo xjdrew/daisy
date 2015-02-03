@@ -21,9 +21,12 @@ type Module struct {
 	Services []Service
 }
 
-var ProtoPrefixEscape = ".proto."
-var ProtoPrefix = "proto_"
-var ProtoResponse = "_Response"
+const (
+	ProtoPrefix         = "proto"
+	ProtoResponseSuffix = "_Response"
+	PathSep             = "_"
+	NameSep             = "."
+)
 
 // exported interfaces
 func ParseFile(path string) ([]Module, error) {
@@ -85,10 +88,11 @@ func camelCase(src string) string {
 }
 
 func addPrefix(str, prefix string) string {
-	if strings.HasPrefix(str, ProtoPrefixEscape) {
-		return strings.Replace(str, ProtoPrefixEscape, ProtoPrefix, 1)
+	if strings.HasPrefix(str, NameSep) {
+		// .proto.module.interface -> proto_module.interface
+		return strings.Replace(str[1:], NameSep, PathSep, 1)
 	} else {
-		return ProtoPrefix + prefix + "." + camelCase(str)
+		return ProtoPrefix + PathSep + prefix + NameSep + camelCase(str)
 	}
 }
 
@@ -101,7 +105,7 @@ func normalizeModule(module *Module) {
 			service.Input = addPrefix(service.Input, module.Name)
 		}
 		if service.Output == "" {
-			service.Output = service.Input + ProtoResponse
+			service.Output = service.Input + ProtoResponseSuffix
 		} else if service.Output == EMPTY_OUTPUT {
 			service.Output = ""
 		} else {
@@ -200,13 +204,16 @@ func isSpace(c rune) bool {
 	return c == ' ' || c == '\t'
 }
 
-var nameRegex = regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9]*$")
+var moduleNameRegex = regexp.MustCompile("^[a-z][a-z0-9_]*$")
+var inputNameRegex = regexp.MustCompile("^[A-Z][a-zA-Z0-9]*$")
 
-func checkName(data string) bool {
-	return nameRegex.MatchString(data)
+func checkModuleName(data string) bool {
+	return moduleNameRegex.MatchString(data)
 }
 
-var inputRegex = regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9]*\\.[A-Z][a-zA-Z0-9]*$")
+func checkInputName(data string) bool {
+	return inputNameRegex.MatchString(data)
+}
 
 func checkInput(str string) bool {
 	if str == "" {
@@ -214,12 +221,14 @@ func checkInput(str string) bool {
 	}
 
 	// Name
-	if checkName(str) {
+	if checkModuleName(str) {
 		return true
 	}
 
 	// .proto.Module.Name
-	if inputRegex.MatchString(strings.Replace(str, ProtoPrefixEscape, "", 1)) {
+	sections := strings.Split(str, NameSep)
+	if len(sections) == 4 && sections[0] == "" && sections[1] == ProtoPrefix &&
+		checkModuleName(sections[2]) && checkInputName(sections[3]) {
 		return true
 	}
 	return false
@@ -303,7 +312,7 @@ func (d *decodeState) nextModule() (m *Module, err error) {
 	mstart := d.scanLine(MODULE_START)
 	mend := d.scanLine(MODULE_END)
 	name := d.lines[d.off]
-	if mstart >= mend || mstart != d.off+1 || !checkName(name) {
+	if mstart >= mend || mstart != d.off+1 || !checkModuleName(name) {
 		err = fmt.Errorf("illegal module struct:%s", name)
 		return
 	}
