@@ -4,13 +4,13 @@ import (
 	"log"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/xjdrew/daisy/gen/descriptor"
 	"github.com/xjdrew/daisy/gen/proto/debug"
-	"github.com/xjdrew/daisy/gen/protolist"
 	"github.com/xjdrew/daisy/pb/rpc"
 )
 
 func main() {
-	bridge := rpc.NewBridge(protolist.Modules)
+	bridge := rpc.NewBridge(descriptor.Descriptors)
 	client, err := bridge.Dail("tcp", "127.0.0.1:1234")
 	if err != nil {
 		log.Fatal("dialing:", err)

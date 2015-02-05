@@ -10,14 +10,17 @@ import (
 
 // exported struct
 type Service struct {
-	Id     int
-	Name   string
-	Input  string
-	Output string
+	Id         int32
+	Name       string
+	NormalName string
+	MethodName string
+	Input      string
+	Output     string
 }
 
 type Module struct {
 	Name     string
+	GoName   string
 	Services []Service
 }
 
@@ -97,8 +100,14 @@ func addPrefix(str, prefix string) string {
 }
 
 func normalizeModule(module *Module) {
+	mname := camelCase(module.Name)
 	for i, _ := range module.Services {
 		service := &module.Services[i]
+
+		name := service.Name
+		service.NormalName = module.Name + NameSep + name
+		service.MethodName = mname + NameSep + camelCase(name)
+
 		if service.Input == "" {
 			service.Input = addPrefix(service.Name, module.Name)
 		} else {
@@ -116,21 +125,22 @@ func normalizeModule(module *Module) {
 
 func normalizeModules(modules []Module) error {
 	moduleMap := make(map[string]bool)
-	idMap := make(map[int]bool)
+	idMap := make(map[int32]bool)
 	serviceMap := make(map[string]bool)
-	for i, _ := range modules {
+	for i := range modules {
 		module := &(modules[i])
-		if moduleMap[module.Name] {
-			return fmt.Errorf("repeated module name:%s", module.Name)
+		goName := camelCase(module.Name)
+		if moduleMap[goName] {
+			return fmt.Errorf("repeated module name:%s", goName)
 		}
-		moduleMap[module.Name] = true
+		module.GoName, moduleMap[goName] = goName, true
 
 		for _, service := range module.Services {
 			if idMap[service.Id] || serviceMap[service.Name] {
 				return fmt.Errorf("repeated service:(%s:%d)", service.Name, service.Id)
 			}
 			idMap[service.Id] = true
-			serviceMap[service.Name] = true
+			service.Name, serviceMap[service.Name] = service.Name, true
 		}
 		normalizeModule(module)
 	}
@@ -261,7 +271,7 @@ func parseService(data string) (s Service, err error) {
 		err = fmt.Errorf("invalid service id(%s) in line %s", sections[3], data)
 		return
 	}
-	s.Id = int(id)
+	s.Id = int32(id)
 	s.Name = sections[1]
 	s.Input = sections[2]
 	// normalize output

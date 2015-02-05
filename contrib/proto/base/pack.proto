@@ -6,7 +6,7 @@ message Error {
 }
 
 message Pack {
-    optional	int32	session   = 1; // 客户端生成，若为0，不需要响应；否则服务器相应时原样返回
+    optional	int32	session   = 1; // 客户端生成，服务器相应时原样返回
     optional	int32	type      = 2; // 请求时为接口id，响应时为0
     optional    Error   error     = 3; // 若处理请求出错返回给客户端
     optional	bytes	data      = 4; // 请求内容

@@ -19,6 +19,12 @@ type Codec struct {
 	rdbuf [BUFLEN]byte
 }
 
+func NewCodec(rwc io.ReadWriteCloser) *Codec {
+	return &Codec{
+		rwc: rwc,
+	}
+}
+
 func (c *Codec) ReadPack(p *proto_base.Pack) error {
 	if p == nil {
 		return nil
