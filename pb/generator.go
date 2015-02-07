@@ -128,7 +128,7 @@ func generate(modules []parser.Module) []byte {
 	b.WriteString(fmt.Sprintf("%q\n", typ.PkgPath()))
 	b.WriteString("\n")
 	for _, dep := range deps {
-		b.WriteString(fmt.Sprintf("\"%s/%s\"", PkgPathBase, dep))
+		b.WriteString(fmt.Sprintf("\"%s/%s\"\n", PkgPathBase, dep))
 	}
 	b.WriteString(")\n")
 	b.WriteString("\n")

@@ -1,0 +1,13 @@
+package proto.test;
+
+message Echo {
+    optional string req = 1;
+    message Response {
+        optional string resp = 1;
+    }
+}
+
+message Strobe {
+    optional string msg = 2;
+}
+

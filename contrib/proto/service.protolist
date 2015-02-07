@@ -1,3 +1,9 @@
 debug {
     ping = 1
 }
+
+test {
+    echo = 100001
+    strobe:[] = 100002
+}
+

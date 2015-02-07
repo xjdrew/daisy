@@ -22,14 +22,22 @@ var _ = proto.Marshal
 var _ = math.Inf
 
 type Error struct {
-	Code             *int32  `protobuf:"varint,1,opt,name=code" json:"code,omitempty"`
-	Error            *string `protobuf:"bytes,2,opt,name=error" json:"error,omitempty"`
+	Failed           *bool   `protobuf:"varint,1,opt,name=failed" json:"failed,omitempty"`
+	Code             *int32  `protobuf:"varint,2,opt,name=code" json:"code,omitempty"`
+	Error            *string `protobuf:"bytes,3,opt,name=error" json:"error,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
 func (m *Error) Reset()         { *m = Error{} }
 func (m *Error) String() string { return proto.CompactTextString(m) }
 func (*Error) ProtoMessage()    {}
+
+func (m *Error) GetFailed() bool {
+	if m != nil && m.Failed != nil {
+		return *m.Failed
+	}
+	return false
+}
 
 func (m *Error) GetCode() int32 {
 	if m != nil && m.Code != nil {

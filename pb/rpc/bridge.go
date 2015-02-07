@@ -1,8 +1,8 @@
 package rpc
 
 import (
-	"io"
 	"log"
+	"net"
 )
 
 type Bridge struct {
@@ -15,7 +15,8 @@ func NewBridge(descriptors []Descriptor) *Bridge {
 	idMap := make(map[int32]*Descriptor)
 	nameMap := make(map[string]*Descriptor)
 	methodMap := make(map[string]*Descriptor)
-	for _, dptor := range descriptors {
+	for i := range descriptors {
+		dptor := descriptors[i]
 		if _, ok := idMap[dptor.Id]; ok {
 			log.Panicf("repeated service:%#v", dptor)
 		} else {
@@ -37,18 +38,24 @@ func (bridge *Bridge) NewServer() *Server {
 	return newServer(bridge)
 }
 
-func (bridge *Bridge) Dail(network, address string) (*Client, error) {
-	return nil, nil
+func (bridge *Bridge) Dail(network, address string) (cli *Client, err error) {
+	var conn net.Conn
+	conn, err = net.Dial(network, address)
+	if err != nil {
+		return
+	}
+	cli = bridge.NewClient(conn)
+	return
 }
 
-func (bridge *Bridge) NewClient(conn io.ReadWriteCloser) *Client {
-	return nil
+func (bridge *Bridge) NewClient(conn net.Conn) *Client {
+	return NewClient(bridge, conn)
+}
+
+func (bridge *Bridge) getDescriptorByName(name string) *Descriptor {
+	return bridge.nameMap[name]
 }
 
 func (bridge *Bridge) getDescriptor(module, method string) *Descriptor {
-	if service, ok := bridge.methodMap[module+"."+method]; ok {
-		return service
-	} else {
-		return nil
-	}
+	return bridge.methodMap[module+"."+method]
 }

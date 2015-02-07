@@ -9,6 +9,7 @@ import (
 	"github.com/xjdrew/daisy/pb/rpc"
 
 	"github.com/xjdrew/daisy/gen/proto/debug"
+	"github.com/xjdrew/daisy/gen/proto/test"
 )
 
 var Descriptors = []rpc.Descriptor{
@@ -18,5 +19,21 @@ var Descriptors = []rpc.Descriptor{
 		MethodName: "Debug.Ping",
 		ArgType:    reflect.TypeOf(&proto_debug.Ping{}),
 		ReplyType:  reflect.TypeOf(&proto_debug.Ping_Response{}),
+	},
+
+	{
+		Id:         100001,
+		NormalName: "test.echo",
+		MethodName: "Test.Echo",
+		ArgType:    reflect.TypeOf(&proto_test.Echo{}),
+		ReplyType:  reflect.TypeOf(&proto_test.Echo_Response{}),
+	},
+
+	{
+		Id:         100002,
+		NormalName: "test.strobe",
+		MethodName: "Test.Strobe",
+		ArgType:    reflect.TypeOf(&proto_test.Strobe{}),
+		ReplyType:  nil,
 	},
 }

@@ -4,10 +4,17 @@ import (
 	"log"
 
 	"github.com/golang/protobuf/proto"
+
 	"github.com/xjdrew/daisy/gen/descriptor"
-	"github.com/xjdrew/daisy/gen/proto/debug"
+	"github.com/xjdrew/daisy/gen/proto/test"
 	"github.com/xjdrew/daisy/pb/rpc"
 )
+
+type Test int
+
+func (t *Test) Strobe(context *rpc.Context, req *proto_test.Strobe) {
+	log.Printf("Strobe: %+v", req)
+}
 
 func main() {
 	bridge := rpc.NewBridge(descriptor.Descriptors)
@@ -17,13 +24,18 @@ func main() {
 	}
 	defer client.Close()
 
-	ping := proto_debug.Ping{
-		Ping: proto.String("hello"),
+	// register callbacks
+	if err := client.RegisterModule(new(Test)); err != nil {
+		log.Fatal("register error:", err)
 	}
-	pong := proto_debug.Ping_Response{}
-	err = client.Call("debug.ping", ping, &pong)
-	if err != nil {
-		log.Fatal("call debug.ping:", err)
+
+	go client.Serve()
+	// echo
+	req := &proto_test.Echo{Req: proto.String("hello")}
+	echod := proto_test.Echo_Response{}
+	callErr := client.MustCall("test.echo", req, &echod)
+	if callErr != nil {
+		log.Fatal("call test.echo:", callErr)
 	}
-	log.Printf("debug.ping: %s -> %s", ping.Ping, pong.Pong)
+	log.Printf("echo response:%s", echod.GetResp())
 }

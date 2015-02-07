@@ -1,8 +1,9 @@
 package proto.base;
 
 message Error {
-    optional int32  code  = 1;
-    optional string error = 2;
+    optional bool   failed = 1;
+    optional int32  code   = 2;
+    optional string error  = 3;
 }
 
 message Pack {

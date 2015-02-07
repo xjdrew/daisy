@@ -36,15 +36,16 @@ func (c *Codec) ReadPack(p *proto_base.Pack) error {
 	}
 
 	var to uint16 = 0
+	rdbuf := c.rdbuf[:sz]
 	for to < sz {
-		n, err := c.rwc.Read(c.rdbuf[to:])
+		n, err := c.rwc.Read(rdbuf[to:])
 		if err != nil {
 			return err
 		}
 		to += uint16(n)
 	}
 
-	if err := proto.Unmarshal(c.rdbuf[:sz], p); err != nil {
+	if err := proto.Unmarshal(rdbuf[:], p); err != nil {
 		return err
 	}
 	return nil
@@ -60,7 +61,7 @@ func (c *Codec) WritePack(p *proto_base.Pack) error {
 		return err
 	}
 
-	sz := len(data)
+	sz := uint16(len(data))
 	if sz > BUFLEN {
 		return fmt.Errorf("WritePack: overflow packet size(%d)", sz)
 	}
